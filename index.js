@@ -53,10 +53,16 @@ class PostCSSCompiler {
 
 	optimize(file) {
 		const path = file.path;
-		const opts = {from: path, to: sysPath.basename(path), map: this.map};
+		const opts = {from: sysPath.basename(path), // Fix Sass file paths.
+			      to: sysPath.basename(path), map: this.map};
 
 		if (file.map) {
 			opts.map.prev = file.map.toJSON();
+		}
+
+		if (opts.map.prev && opts.map.prev.sourcesContent) {
+			// Fix Sass source map contents.
+			opts.map.sourcesContent = true;
 		}
 
 		return this.processor.process(file.data, opts).then(result => {
